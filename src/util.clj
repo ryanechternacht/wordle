@@ -1,6 +1,5 @@
-(ns ryan.wordle
-  (:require [clojure.string :as str]
-            [clojure.set :as set]))
+(ns util
+  (:require [clojure.string :as str]))
 
 (defn- get-greens [word guess]
   (reduce (fn [acc i]
@@ -62,6 +61,7 @@
   ;
   )
 
+
 ;; if we have a green for a column, that's the answer
 ;; if we have a yellow for a column, we know it's _not_ that column's
 ;; answer
@@ -75,7 +75,7 @@
 ;; need to handle max count of a letter (when we hit a gray), 
 ;; this replaces how we handle yellows
 ;; TODO do we still want to know yellows?
-(defn- process-guess [guess result]
+(defn process-guess [guess result]
   (let [green-yellow-counts
         (reduce-kv (fn [acc i result]
                   (let [l (get guess i)]
@@ -111,7 +111,7 @@
   ;
   )
 
-(defn- compile-guesses
+(defn compile-guesses
   [guesses]
   (let [{:keys [cols matched-letters max-count]}
         (reduce (fn [acc {:keys [letters-matched cols guess max-count]}]
@@ -286,20 +286,9 @@
   ;
   )
 
-(def answers (->> "resources/words.txt"
-                  slurp
-                  str/split-lines
-                  ))
-
-(def possible-guesses (->> "resources/words-long.txt"
-                           slurp
-                           str/split-lines))
-
 (def sample-words (->> "resources/words-sample.txt"
                        slurp
                        str/split-lines))
-
-(def possible-words (concat answers possible-guesses))
 
 (comment
   (->> sample-words
@@ -312,71 +301,5 @@
                                      4 {:is nil, :cant #{}}}
                                     :misses #{\c \t}}
                                    %)))
-  ;
-  )
-
-(defn build-point-map [words]
-  (for [c (range 5)]
-    (reduce (fn [acc w]
-              (update acc (get w c) inc))
-            (into {} (for [a (range 26)]
-                       [(char (+ (int \a) a)) 0]))
-            words)))
-
-(comment
-  (build-point-map sample-words)
-  ;
-  )
-
-(defn generate-score [point-map word]
-  (reduce-kv (fn [acc i m]
-               (+ acc (m (get word i))))
-             0
-             (vec point-map)))
-
-(comment
-  (generate-score (build-point-map sample-words)
-                  "zbzzz")
-  ; 
-  )
-
-(defn generate-guess
-  "words-list is a full list of all allowed guesses. prior-guesses
-   is a map of guesses like {abcde __GY_, aabbc GY__G}"
-  [words-list prior-guesses]
-  (let [processed-guesses (->> prior-guesses
-                               (map #(apply process-guess %))
-                               compile-guesses)
-        legal-guesses (filter (partial is-word-possible? processed-guesses)
-                              words-list)
-        point-map (build-point-map legal-guesses)
-        [guess _] (reduce (fn [[_ best :as acc] word]
-                             (let [score (generate-score point-map word)]
-                               (if (> score best)
-                                 [word score]
-                                 acc)))
-                           ["" 0]
-                           legal-guesses)]
-    guess))
-
-(comment
-  (generate-guess sample-words {"exxxx" "Y____"})
-
-  (generate-guess possible-words {"sores" "___Y_"
-                                  "teene" "_G___"})
-  ;
-  )
-
-(defn- guess-word [word]
-  (loop [guesses {}]
-    (let [guess (generate-guess possible-words guesses)
-          score (score-word word guess)]
-      (println (count guesses) guess score)
-      (if (= score "GGGGG")
-        (count guesses)
-        (recur (assoc guesses guess score))))))
-
-(comment
-  (guess-word "peach")
   ;
   )
