@@ -367,53 +367,16 @@
   ;
   )
 
-;; get all possible words
-;; get count of letters for each column 
-;; - so how many a's in col 1, b's col 1, a's col 2, etc
-;; then, for each word, find "score" where score is 
-;; letter in slot * count of that letter across the set
-;; choose the highest (this can be a simple reduce)
+(defn- guess-word [word]
+  (loop [guesses {}]
+    (let [guess (generate-guess possible-words guesses)
+          score (score-word word guess)]
+      (println (count guesses) guess score)
+      (if (= score "GGGGG")
+        (count guesses)
+        (recur (assoc guesses guess score))))))
 
 (comment
-  (let [word "jazzy"
-        guess1 (generate-guess possible-words {})
-        _ (println "guess 1:" guess1)
-        result1 (score-word word guess1)
-        _ (println "result1:" result1)
-
-        guess2 (generate-guess possible-words {guess1 result1})
-        _ (println "guess 2:" guess2)
-        result2 (score-word word guess2)
-        _ (println "result2:" result2)
-
-        guess3 (generate-guess possible-words {guess1 result1
-                                               guess2 result2})
-        _ (println "guess 3:" guess3)
-        result3 (score-word word guess3)
-        _ (println "result3:" result3)
-
-        guess4 (generate-guess possible-words {guess1 result1
-                                               guess2 result2
-                                               guess3 result3})
-        _ (println "guess 4:" guess4)
-        result4 (score-word word guess4)
-        _ (println "result4:" result4)
-
-        guess5 (generate-guess possible-words {guess1 result1
-                                               guess2 result2
-                                               guess3 result3
-                                               guess4 result4})
-        _ (println "guess 5:" guess5)
-        result5 (score-word word guess5)
-        _ (println "result5:" result5)
-
-        guess6 (generate-guess possible-words {guess1 result1
-                                               guess2 result2
-                                               guess3 result3
-                                               guess4 result4
-                                               guess5 result5})
-        _ (println "guess 6:" guess6)
-        result6 (score-word word guess6)
-        _ (println "result6:" result6)])
+  (guess-word "peach")
   ;
   )
