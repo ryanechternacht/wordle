@@ -71,10 +71,6 @@
 ;; from a single guess, we can glean greens, yellows, extra letters
 ;; then we need to roll that up to know greens, columns that have noes
 ;; and letters we still need to find the answer to
-
-;; need to handle max count of a letter (when we hit a gray), 
-;; this replaces how we handle yellows
-;; TODO do we still want to know yellows?
 (defn process-guess [guess result]
   (let [green-yellow-counts
         (reduce-kv (fn [acc i result]
@@ -132,14 +128,6 @@
                             :max-count
                             into
                             max-count)))
-                    ;; (reduce (fn [acc2 [l c]]
-                    ;;           (update-in acc2
-                    ;;                      [:max-count l]
-                    ;;                      min
-                    ;;                      (or c 5)))
-                    ;;         add-matched-letters
-                    ;;         max-count)))
-                    ;; (update add-matched-letters :max-count into misses)))
                 {:cols {0 {:is nil :cant #{}}
                         1 {:is nil :cant #{}}
                         2 {:is nil :cant #{}}
@@ -174,14 +162,6 @@
   ;
   )
 
-;; TODO need to handle the case where we know a col is a letter, 
-;; but that letter is also a miss (like we guessed a word with)
-;; multiple copies of that letter
-;; ^ same thing probably aflicts yellows too (we guessed two of a 
-;; letter and one is yellow and one is gray)
-;; we need to refactor :misses into a max-count (where true misses)
-;; are 0, but can also have 1, 2, etc.
-;; ^ this would probably include "extra-letters" too
 (defn is-word-possible?
   "guesses is a map of guess -> result'"
   [{:keys [yellow-letters cols max-count]} word]

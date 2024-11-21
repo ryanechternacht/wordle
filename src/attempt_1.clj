@@ -1,6 +1,14 @@
 (ns attempt-1
-  (:require [clojure.string :as str]
-            [util]))
+  (:require [util]))
+
+;; basic idea is to take each column, count the number of times each letter
+;; can appear in that column (for the remaining possibilities) and then
+;; score each words (where score is just the sum of the letters in each col added
+;; together. 
+;; 
+;; example: so aback, and 10 a in col 0, 20 b's in col 1, ... 
+;; would have a score of 10 + 20 + ...
+
 
 (defn build-point-map [words]
   (for [c (range 5)]
